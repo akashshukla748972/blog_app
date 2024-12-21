@@ -8,18 +8,6 @@
   </head>
   <body>
     <%- include("./partials/nav") %>
-    <div class="container p-2">
-      <% if (locals?.message){ %>
-
-      <div class="alert alert-success col-md-5 mx-auto mb-2" role="alert"><%= message %></div>
-
-      <% } %>
-    <div class="container">
-      <% if (locals?.error){ %>
-
-      <div class="alert alert-danger col-md-5 mx-auto mb-2" role="alert"><%= error %></div>
-
-      <% } %>
       <form
         action="/users/signup"
         method="post"

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("./partials/head") %>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <%- include("./partials/nav") %>
+
+    <div class="container my-4">
+      <div class="my-5 d-flex flex-column gap-4" style="width: 800px">
+        <h1><%= blogs?.title %></h1>
+        <img
+          src="<%= blogs?.cover_image_url %>"
+          height="400px"
+          width="400px"
+          alt=""
+          class=""
+        />
+        <pre class=""><%= blogs?.body %></pre>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1 class="">Comment (<%= locals.comment.length %>)</h1>
+    </div>
+
+    <% if (user){ %>
+    <div class="container my-4">
+      <form
+        action="/blogs/comment/<%= blogs._id %>"
+        method="post"
+        class="col-md-6 d-flex flex-column gap-2"
+      >
+        <div class="form-group d-flex flex-column gap-2">
+          <label for="content">Write Comment</label>
+          <input
+            type="text"
+            name="content"
+            id="content"
+            placeholder="eg.good"
+            class="form-control"
+            autofocus
+          />
+        </div>
+        <div class="form-group">
+          <button class="btn btn-sm btn-primary">Send</button>
+        </div>
+      </form>
+    </div>
+
+    <% } %>
+    <div class="container my-4">
+      <% comment.forEach(feed=>{ %>
+      <div class="d-flex gap-3 my-5">
+        <img
+          src="<%= feed?.created_by?.profile_image_url %>"
+          width="50px"
+          height="50px"
+          alt=""
+        />
+        <p class=""><%= feed?.content %></p>
+      </div>
+      <% }) %>
+    </div>
+
+    <%- include("./partials/script") %>
+  </body>
+</html>

@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const { genJsonWebToken } = require("../services/jsonwebtoken");
 const {
   handleSigninFromUser,
-  handleSingupFromUser,
+  handleSignupFromUser,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.get("/signup", (req, res) => {
 });
 router.post("/signin", handleSigninFromUser);
 
-router.post("/signup", handleSingupFromUser);
+router.post("/signup", handleSignupFromUser);
 
 router.get("/logout", (req, res) => {
   res
@@ -26,7 +26,7 @@ router.get("/logout", (req, res) => {
       httpOnly: true,
       sameSite: "strict",
     })
-    .redirect("/users/signin");
+    .redirect("/");
 });
 
 module.exports = router;

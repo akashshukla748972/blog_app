@@ -6,7 +6,32 @@
   </head>
   <body class="">
     <%- include("./partials/nav") %>
-    <h1>Home page</h1>
+
+    <div class="container my-5 p-5">
+      <div class="row-col-4 row">
+        <% blogs?.forEach(blog=>{ %>
+
+        <div class="col my-4">
+          <div class="card col" style="width: 18rem">
+            <img
+              src="<%= blog?.cover_image_url %>"
+              class="card-img-top"
+              alt="..."
+              height="200px"
+            />
+            <div class="card-body">
+              <h5 class="card-title"><%= blog?.title?.slice(0,15) %></h5>
+              <p class="card-text"><%= blog?.body?.slice(0, 40) %>...</p>
+              <a href="/blogs/<%= blog._id %>" class="btn btn-primary"
+                >View Blog</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <% }) %>
+      </div>
+    </div>
 
     <%- include("./partials/script") %>
   </body>

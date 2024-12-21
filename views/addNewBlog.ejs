@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("./partials/head") %>
+    <title>add new blog</title>
+  </head>
+  <body class="">
+    <%- include("./partials/nav") %>
+
+    <div class="container">
+      <div
+        class="position-absolute top-50 start-50 translate-middle border border-2 px-3 py-4"
+      >
+        <form
+          action="/blogs/add-new"
+          method="post"
+          class="d-flex flex-column gap-3"
+          enctype="multipart/form-data"
+        >
+          <div class="form-group d-flex flex-column gap-1">
+            <label for="cover_image_url">Cover Image</label>
+            <input
+              type="file"
+              class="form-control"
+              name="cover_image_url"
+              id="cover_image_url"
+            />
+          </div>
+          <div class="form-group d-flex flex-column gap-1">
+            <label for="title">Blog Title</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="eg.demo blog"
+              name="title"
+              id="title"
+            />
+          </div>
+          <div class="form-group d-flex flex-column gap-1">
+            <label for="body">Blog Body</label>
+            <textarea
+              class="form-control"
+              placeholder="eg.demo details"
+              name="body"
+              id="body"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary form-control">Create Blog</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <%- include("./partials/script") %>
+  </body>
+</html>

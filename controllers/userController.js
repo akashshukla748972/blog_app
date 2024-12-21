@@ -2,46 +2,49 @@ const User = require("../models/userModel");
 const { genJsonWebToken } = require("../services/jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const handleSingupFromUser = async (req, res) => {
+const handleSignupFromUser = async (req, res) => {
   try {
     const { full_name, email, phone, password } = req?.body;
 
+    // Check for missing fields
     if (!full_name || !email || !phone || !password) {
+      const missingFields = [];
+      if (!full_name) missingFields.push("Full Name");
+      if (!email) missingFields.push("Email");
+      if (!phone) missingFields.push("Phone");
+      if (!password) missingFields.push("Password");
+
       return res.render("signup", {
-        error: `${!full_name ? "Full Name, " : ""}${!email ? "Email, " : ""}${
-          !phone ? "Phone, " : ""
-        }${!password ? "Password, " : ""} Is Required`,
+        error: `${missingFields.join(", ")} is required`,
       });
     }
 
-    //   check email or phone exist or not
-    const isExistEmail = await User.findOne({ email });
-    const isExistPhone = await User.findOne({ phone });
-    if (isExistEmail || isExistPhone)
+    // Check if email or phone already exists
+    const existingUser = await User.findOne({
+      $or: [{ email }, { phone }],
+    });
+    if (existingUser) {
+      const conflictField = existingUser.email === email ? "Email" : "Phone";
       return res.render("signup", {
-        error: `${isExistEmail ? "Email Already Exist ." : ""}${
-          isExistPhone ? "Phone Already Exist ." : ""
-        }`,
+        error: `${conflictField} already exists.`,
       });
+    }
 
-    // hash password
-    const hashPassword = await bcrypt.hash(password, 10);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // create user
-    const newUser = await User.create({
+    // Create a new user
+    await User.create({
       full_name,
       email,
       phone,
-      password: hashPassword,
+      password: hashedPassword,
     });
 
-    return res.render("signup", {
-      message: "Successfully register now you can login",
-    });
-    return res.redirect("/users/signin", {
-      message: "Successfully register now you can login",
-    });
+    // Redirect to sign-in page
+    return res.redirect("/users/signin");
   } catch (error) {
+    console.error("Signup Error:", error); // Log the error
     return res.render("signup", { error: "Internal server error" });
   }
 };
@@ -49,37 +52,43 @@ const handleSingupFromUser = async (req, res) => {
 const handleSigninFromUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    // check field data not empty
+
+    // Check if email or password is missing
     if (!email || !password) {
+      const missingFields = [];
+      if (!email) missingFields.push("Email");
+      if (!password) missingFields.push("Password");
       return res.render("signin", {
-        error: `${!email ? "Email " : ""}${
-          !password ? "Password" : ""
-        } Is Required!`,
+        error: `${missingFields.join(" and ")} is required!`,
       });
     }
 
+    // Search for user in the database
     const searchUser = await User.findOne({ email });
-    if (!searchUser)
-      return res.render("signin", { error: "Email or Passwrd wrong" });
+    if (!searchUser || !(await bcrypt.compare(password, searchUser.password))) {
+      return res.render("signin", { error: "Invalid email or password" });
+    }
 
-    // check password
-    const isMatch = await bcrypt.compare(password, searchUser.password);
-    if (!isMatch)
-      return res.render("signin", { error: "Email or Passwrd wrong" });
-
-    // gen jwt token
+    // Generate JWT token
     const token = await genJsonWebToken(searchUser);
+
+    // Set cookie with token
     res.cookie("token", token, {
       httpOnly: true,
-      maxAge: 5 * 60 * 1000,
+      maxAge: 60 * 24 * 60 * 1000, // 1 day
+      secure: process.env.NODE_ENV === "production", // Secure in production
+      sameSite: "strict",
     });
+
+    // Redirect to the home page
     return res.redirect("/");
   } catch (error) {
+    console.error("Signin Error:", error); // Log unexpected errors
     return res.render("signin", { error: "Internal server error!" });
   }
 };
 
 module.exports = {
-  handleSingupFromUser,
+  handleSignupFromUser,
   handleSigninFromUser,
 };
