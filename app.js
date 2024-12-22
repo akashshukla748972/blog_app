@@ -1,9 +1,13 @@
 const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
 const path = require("path");
 const userRoute = require("./routes/userRoute");
 const blogRoute = require("./routes/blogRoute");
 const connectToDb = require("./configs/db");
+const morgan = require("morgan");
+const cors = require("cors");
+const helmet = require("helmet");
 const {
   userAuthentication,
   checkAuthenticationCookie,
@@ -12,7 +16,7 @@ const cookieParser = require("cookie-parser");
 const Blog = require("./models/blogModel");
 
 const app = express();
-dotenv.config();
+
 connectToDb(process.env.MONGO_URL)
   .then(() => console.log("Database connected"))
   .catch((error) => console.log("Error", error));
@@ -23,6 +27,9 @@ app.set("views", path.join(__dirname, "views"));
 // middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan("combined"));
+app.use(cors());
+app.use(helmet());
 app.use(cookieParser());
 app.use(checkAuthenticationCookie("token"));
 app.use(express.static(path.resolve("./public")));
